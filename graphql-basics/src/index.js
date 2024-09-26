@@ -1,24 +1,66 @@
 import { ApolloServer } from "@apollo/server";
 import { startStandaloneServer } from "@apollo/server/standalone";
+import gql from "graphql-tag";
 
 // Type definitions (schema)
-const typeDefs = `
-type Query {
-    title: String!,
-    price: Int!,
-    releaseYear: Int!,
-    rating: Float!,
-    inStock: Boolean!,
-}`;
+const typeDefs = gql`
+  type Query {
+    grades: [Int!]!
+    greeting(name: String, position: String): String!
+    add(a: Float!, b: Float!): Float!
+    me: User!
+    post: Post!
+  }
+  type User {
+    id: ID!
+    name: String!
+    email: String!
+    age: Int
+  }
+  type Post {
+    id: ID!
+    title: String!
+    body: String!
+    published: Boolean!
+  }
+`;
 
 // Resolvers
 const resolvers = {
   Query: {
-    title: () => "Harry Potter",
-    price: () => 20,
-    releaseYear: () => 2001,
-    rating: () => 4.5,
-    inStock: () => true,
+    grades(parent, args, ctx, info) {
+      return [99, 80, 93, 100];
+    },
+    add: (parent, args, ctx, info) => {
+      if (args.a && args.b) {
+        return args.a + args.b;
+      }
+    },
+    greeting: (parent, args, ctx, info) => {
+      if (args.name && args.position) {
+        return `Hello, ${args.name}!  You are my favorite ${args.position}`;
+      } else {
+        return "Heelow!";
+      }
+      console.log(args);
+      return "heller werld";
+    },
+    me: () => {
+      return {
+        id: "123456",
+        name: "Cole",
+        email: "cole@colemail.cole",
+        age: 37,
+      };
+    },
+    post: () => {
+      return {
+        id: "123",
+        title: "Mmy first post",
+        body: "This is the body of my first post",
+        published: true,
+      };
+    },
   },
 };
 

@@ -28,18 +28,35 @@ const posts = [
     title: 'GraphQL 101',
     body: 'This is how to use GraphQL...',
     published: true,
+    author: '1',
   },
   {
     id: '11',
     title: 'GraphQL 201',
     body: 'An advanced GraphQL post...',
     published: false,
+    author: '1',
   },
   {
     id: '12',
     title: 'Programming Music',
     body: '',
     published: false,
+    author: '2',
+  },
+  {
+    id: '12',
+    title: 'Title 4',
+    body: 'Body of the post',
+    published: false,
+    author: '3',
+  },
+  {
+    id: '12',
+    title: 'Book Club',
+    body: 'Body of the post',
+    published: false,
+    author: '3',
   },
 ]
 
@@ -62,6 +79,7 @@ const typeDefs = gql`
     title: String!
     body: String!
     published: Boolean!
+    author: User!
   }
 `
 
@@ -101,6 +119,13 @@ const resolvers = {
         body: 'This is the body of my first post',
         published: true,
       }
+    },
+  },
+  Post: {
+    author(parent, args, ctx, info) {
+      return users.find((user) => {
+        return user.id === parent.author
+      })
     },
   },
 }

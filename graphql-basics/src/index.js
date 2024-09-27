@@ -7,7 +7,7 @@ const typeDefs = gql`
   type Query {
     grades: [Int!]!
     greeting(name: String, position: String): String!
-    add(a: Float!, b: Float!): Float!
+    add(numbers: [Float!]!): Float!
     me: User!
     post: Post!
   }
@@ -32,9 +32,12 @@ const resolvers = {
       return [99, 80, 93, 100];
     },
     add: (parent, args, ctx, info) => {
-      if (args.a && args.b) {
-        return args.a + args.b;
+      if (args.numbers.length < 1) {
+        return 0;
       }
+      return args.numbers.reduce((acc, curr) => {
+        return acc + curr;
+      });
     },
     greeting: (parent, args, ctx, info) => {
       if (args.name && args.position) {
@@ -74,5 +77,17 @@ async function startServer() {
   });
 
   console.log(`🚀  Server ready at: ${url}`);
+
+  //   process.on("SIGING", () => {
+  //     httpServer.close(() => {
+  //       process.exit(0);
+  //     });
+  //   });
+
+  //   process.on("SIGTERM", () => {
+  //     httpServer.close(() => {
+  //       process.exit(0);
+  //     });
+  //   });
 }
 startServer();

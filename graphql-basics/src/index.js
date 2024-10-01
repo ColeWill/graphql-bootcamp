@@ -2,6 +2,34 @@ import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
 import gql from 'graphql-tag'
 
+const comments = [
+  {
+    id: '1',
+    body: 'so cool!',
+    author: '3',
+  },
+  {
+    id: '2',
+    body: 'I should chime in here...',
+    author: '2',
+  },
+  {
+    id: '3',
+    body: '',
+    author: '1',
+  },
+  {
+    id: '4',
+    body: 'Comment number 4',
+    author: '3',
+  },
+  {
+    id: '5',
+    body: 'I want to learn rust',
+    author: '3',
+  },
+]
+
 const users = [
   {
     id: '1',
@@ -17,8 +45,13 @@ const users = [
   },
   {
     id: '3',
-    name: 'Sarah',
-    email: 'Sarah@example.com',
+    name: 'Frumpy',
+    email: 'Frumpy@example.com',
+  },
+  {
+    id: '4',
+    name: 'User 4',
+    email: '4@4.com',
   },
 ]
 
@@ -45,14 +78,14 @@ const posts = [
     author: '2',
   },
   {
-    id: '12',
+    id: '13',
     title: 'Title 4',
     body: 'Body of the post',
     published: false,
     author: '3',
   },
   {
-    id: '12',
+    id: '14',
     title: 'Book Club',
     body: 'Body of the post',
     published: false,
@@ -67,18 +100,25 @@ const typeDefs = gql`
     me: User!
     post: Post!
     posts(query: String): [Post!]!
+    comments(query: String): [Comment!]!
   }
   type User {
     id: ID!
     name: String!
     email: String!
     age: Int
+    posts: [Post!]!
   }
   type Post {
     id: ID!
     title: String!
     body: String!
     published: Boolean!
+    author: User!
+  }
+  type Comment {
+    id: ID!
+    body: String!
     author: User!
   }
 `
@@ -104,6 +144,16 @@ const resolvers = {
         return title.includes(query) || body.includes(query)
       })
     },
+    comments(parent, args, ctx, info) {
+      if (!args.query) return comments
+
+      return comments.filter((comment) => {
+        const query = args.query.toLowerCase()
+        const body = comment.body.toLowerCase()
+
+        return body.includes(query)
+      })
+    },
     me: () => {
       return {
         id: '123456',
@@ -125,6 +175,13 @@ const resolvers = {
     author(parent, args, ctx, info) {
       return users.find((user) => {
         return user.id === parent.author
+      })
+    },
+  },
+  User: {
+    posts(parent, args, ctx, info) {
+      return posts.filter((post) => {
+        return post.author === parent.id
       })
     },
   },

@@ -1,5 +1,6 @@
 import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
+import { v4 as uuidv4 } from 'uuid'
 import gql from 'graphql-tag'
 
 const comments = [
@@ -107,6 +108,9 @@ const typeDefs = gql`
     posts(query: String): [Post!]!
     comments(query: String): [Comment!]!
   }
+  type Mutation {
+    createUser(name: String!, email: String!, age: Int): User!
+  }
   type User {
     id: ID!
     name: String!
@@ -177,6 +181,27 @@ const resolvers = {
         body: 'This is the body of my first post',
         published: true,
       }
+    },
+  },
+  Mutation: {
+    createUser(parent, args, ctx, info) {
+      // check if user is unique
+      const emailTaken = users.some((user) => user.email === args.email)
+
+      if (emailTaken) {
+        throw new Error('Email taken.')
+      }
+
+      const user = {
+        id: uuidv4(),
+        name: args.name,
+        email: args.email,
+        age: args.age,
+      }
+
+      users.push(user)
+
+      return user
     },
   },
   Post: {

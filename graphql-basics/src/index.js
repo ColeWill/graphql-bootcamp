@@ -4,29 +4,34 @@ import gql from 'graphql-tag'
 
 const comments = [
   {
-    id: '1',
+    id: '10',
     body: 'so cool!',
     author: '3',
+    postID: '10',
   },
   {
-    id: '2',
+    id: '11',
     body: 'I should chime in here...',
     author: '2',
+    postID: '11',
   },
   {
-    id: '3',
-    body: '',
+    id: '12',
+    body: 'there is no body',
     author: '1',
+    postID: 12,
   },
   {
-    id: '4',
+    id: '13',
     body: 'Comment number 4',
     author: '3',
+    postID: '13',
   },
   {
-    id: '5',
+    id: '14',
     body: 'I want to learn rust',
     author: '3',
+    postID: '14',
   },
 ]
 
@@ -35,13 +40,13 @@ const users = [
     id: '1',
     name: 'Cole',
     email: 'cole@example.com',
-    age: 37,
+    age: '37',
   },
   {
     id: '2',
     name: 'Steve',
     email: 'Steve@example.com',
-    age: 47,
+    age: '47',
   },
   {
     id: '3',
@@ -108,6 +113,7 @@ const typeDefs = gql`
     email: String!
     age: Int
     posts: [Post!]!
+    comments: [Comment!]!
   }
   type Post {
     id: ID!
@@ -115,11 +121,13 @@ const typeDefs = gql`
     body: String!
     published: Boolean!
     author: User!
+    comments: [Comment!]!
   }
   type Comment {
     id: ID!
     body: String!
     author: User!
+    postID: ID!
   }
 `
 
@@ -177,11 +185,22 @@ const resolvers = {
         return user.id === parent.author
       })
     },
+    comments(parent, args, ctx, info) {
+      return comments.filter((comment) => {
+        return comment.postID === parent.id
+      })
+    },
   },
   User: {
     posts(parent, args, ctx, info) {
       return posts.filter((post) => {
         return post.author === parent.id
+      })
+    },
+    comments(parent, args, ctx, info) {
+      return comments.filter((comment) => {
+        console.log(comment)
+        return comment.postID === parent.id
       })
     },
   },

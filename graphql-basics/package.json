@@ -13,10 +13,14 @@
   "license": "ISC",
   "dependencies": {
     "@apollo/server": "^4.11.0",
+    "@graphql-tools/graphql-file-loader": "^8.0.1",
+    "@graphql-tools/load": "^8.0.2",
     "babel-cli": "6.26.0",
     "babel-preset-env": "1.7.0",
     "graphql": "^16.9.0",
+    "graphql-import-node": "^0.0.5",
     "graphql-tag": "^2.12.6",
+    "graphql-tools": "^9.0.1",
     "uuid": "10.0.0"
   },
   "devDependencies": {

@@ -1,139 +1,14 @@
 import { ApolloServer } from '@apollo/server'
 import { startStandaloneServer } from '@apollo/server/standalone'
 import { v4 as uuidv4 } from 'uuid'
-import gql from 'graphql-tag'
+import { addResolversToSchema } from '@graphql-tools/schema'
+import { users, posts, comments } from './data.js' // Ensure the path and extension are correct
+import { loadSchemaSync } from '@graphql-tools/load'
+import { GraphQLFileLoader } from '@graphql-tools/graphql-file-loader'
 
-const comments = [
-  {
-    id: '10',
-    body: 'so cool!',
-    author: '3',
-    postID: '10',
-  },
-  {
-    id: '11',
-    body: 'I should chime in here...',
-    author: '2',
-    postID: '11',
-  },
-  {
-    id: '12',
-    body: 'there is no body',
-    author: '1',
-    postID: 12,
-  },
-  {
-    id: '13',
-    body: 'Comment number 4',
-    author: '3',
-    postID: '13',
-  },
-  {
-    id: '14',
-    body: 'I want to learn rust',
-    author: '3',
-    postID: '14',
-  },
-]
-
-const users = [
-  {
-    id: '1',
-    name: 'Cole',
-    email: 'cole@example.com',
-    age: '37',
-  },
-  {
-    id: '2',
-    name: 'Steve',
-    email: 'Steve@example.com',
-    age: '47',
-  },
-  {
-    id: '3',
-    name: 'Frumpy',
-    email: 'Frumpy@example.com',
-  },
-  {
-    id: '4',
-    name: 'User 4',
-    email: '4@4.com',
-  },
-]
-
-const posts = [
-  {
-    id: '10',
-    title: 'GraphQL 101',
-    body: 'This is how to use GraphQL...',
-    published: true,
-    author: '1',
-  },
-  {
-    id: '11',
-    title: 'GraphQL 201',
-    body: 'An advanced GraphQL post...',
-    published: false,
-    author: '1',
-  },
-  {
-    id: '12',
-    title: 'Programming Music',
-    body: '',
-    published: false,
-    author: '2',
-  },
-  {
-    id: '13',
-    title: 'Title 4',
-    body: 'Body of the post',
-    published: false,
-    author: '3',
-  },
-  {
-    id: '14',
-    title: 'Book Club',
-    body: 'Body of the post',
-    published: false,
-    author: '3',
-  },
-]
-
-// Type definitions (schema)
-const typeDefs = gql`
-  type Query {
-    users(query: String): [User!]!
-    me: User!
-    post: Post!
-    posts(query: String): [Post!]!
-    comments(query: String): [Comment!]!
-  }
-  type Mutation {
-    createUser(name: String!, email: String!, age: Int): User!
-  }
-  type User {
-    id: ID!
-    name: String!
-    email: String!
-    age: Int
-    posts: [Post!]!
-    comments: [Comment!]!
-  }
-  type Post {
-    id: ID!
-    title: String!
-    body: String!
-    published: Boolean!
-    author: User!
-    comments: [Comment!]!
-  }
-  type Comment {
-    id: ID!
-    body: String!
-    author: User!
-    postID: ID!
-  }
-`
+const schema = loadSchemaSync('src/schema.graphqls', {
+  loaders: [new GraphQLFileLoader()],
+})
 
 // Resolvers
 const resolvers = {
@@ -238,9 +113,13 @@ const resolvers = {
   },
 }
 
-const server = new ApolloServer({
-  typeDefs,
+const schemaWithResolvers = addResolversToSchema({
+  schema,
   resolvers,
+})
+
+const server = new ApolloServer({
+  schema: schemaWithResolvers,
 })
 async function startServer() {
   const { url } = await startStandaloneServer(server, {
